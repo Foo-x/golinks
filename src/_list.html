@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>golinks list</title>
+  <style>
+    table {
+      border-collapse: collapse;
+    }
+
+    th:first-of-type {
+      min-width: 3rem;
+      width: 10%;
+    }
+
+    th,
+    td {
+      padding: 0.5rem 1rem;
+      text-align: left;
+      overflow-wrap: anywhere;
+    }
+
+    th {
+      border-bottom: solid 2px;
+    }
+
+    td {
+      border-bottom: solid 1px;
+    }
+  </style>
+</head>
+
+<body>
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">From</th>
+        <th scope="col">To</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    fetch(`${location.origin}/_api/_list`)
+      .then((r) => r.json())
+      .then((json) => {
+        const body = Object.entries(json)
+          .map(
+            ([from, to]) =>
+              `<tr><td><a href="${to}">${from}</a></td><td><a href="${to}">${to}</a></td></tr>`,
+          )
+          .join("");
+        document.querySelector("tbody").innerHTML = body;
+      });
+  </script>
+</body>
+
+</html>
