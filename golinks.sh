@@ -2,7 +2,6 @@
 
 docker run --rm -d \
   -u "$(id -u):$(id -g)" \
-  -v ./src:/golinks/src \
+  -v $PWD/routes:/golinks/routes \
   -p 80:80 \
-  oven/bun \
-  bun /golinks/src/index.ts | xargs docker logs
+  golinks | xargs docker logs

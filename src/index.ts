@@ -1,18 +1,23 @@
-import { watch } from "fs";
+import { watch } from "node:fs";
+import { readdir } from "node:fs/promises";
 
-const routesPath = `${import.meta.dir}/routes.json`;
-const routesFile = Bun.file(routesPath);
-if (!(await routesFile.exists())) {
-  await Bun.write(routesFile, "{}");
-}
+const routesRoot = "/golinks/routes";
 
 const createConfig = async () => {
-  let routesJson: Record<string, string>;
-  try {
-    routesJson = await Bun.file(routesPath).json();
-  } catch {
-    routesJson = {};
-  }
+  const routesFilePaths: string[] = await readdir(routesRoot);
+  const routesJson = (
+    await Promise.all(
+      routesFilePaths.map<Promise<Record<string, string>>>(
+        async (path: string) => {
+          try {
+            return await Bun.file(`${routesRoot}/${path}`).json();
+          } catch {
+            return {};
+          }
+        },
+      ),
+    )
+  ).reduce((a, b) => ({ ...a, ...b }), {});
 
   const routes = Object.fromEntries(
     Object.entries(routesJson).map(([from, to]) => [
@@ -46,6 +51,6 @@ const server = Bun.serve(await createConfig());
 
 console.log(`Serving on ${server.url} ...`);
 
-watch(import.meta.dir, async () => {
+watch(routesRoot, async () => {
   server.reload(await createConfig());
 });
